@@ -1,4 +1,4 @@
-# Study
+# SL for Study (지도학습 공부내용)
 ### RLHF(Reinforcement Learning with Human Feedback)
     인간이 Stable-Diffusion이 낸 2개 중 더 나은 결과를 선택하는 피드백으로 학습
     그러나... 이를 통해 학습한 결과가 좀... 처참(하다못해 보기 좀 불쾌)하다
