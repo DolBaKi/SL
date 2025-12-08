@@ -1,0 +1,41 @@
+# yolov8_resnet18.yaml
+# TorchVision ResNet18 backbone + YOLO multi-scale Detect head
+
+nc: 2  # 클래스 수에 맞게 수정해줘 (예: 1, 2, 80 ...)
+
+backbone:
+  # [from, repeats, module, args]
+  # TorchVision: [out_ch, model_name, weights, unwrap, truncate, split]
+  - [-1, 1, TorchVision, [512, resnet18, DEFAULT, True, 2, True]]
+    # 512      : 마지막 스테이지 채널 수 (ResNet18 layer4 = 512ch)
+    # resnet18 : torchvision.models.resnet18
+    # DEFAULT  : ImageNet pretrained
+    # True     : fc 등 분류 헤드 제거
+    # 2        : 끝에서 두 레이어 잘라냄
+    # True     : 여러 feature map을 리스트로 반환 (multi-scale용)
+
+head:
+  # ResNet18 내부 feature 중 stride 8 / 16 / 32에 대응하는 것들을 Index로 뽑음
+  # (많이 쓰는 설정: 6, 7, 8번 레이어 출력이 P3, P4, P5 역할) 
+
+  - [0, 1, Index, [128, 6]]  # P3: 1/8 해상도, 128ch
+  - [0, 1, Index, [256, 7]]  # P4: 1/16 해상도, 256ch
+  - [0, 1, Index, [512, 8]]  # P5: 1/32 해상도, 512ch
+
+  # YOLO-style multi-scale Detect head
+  - [[1, 2, 3], 1, Detect, [nc]]
+
+train:
+
+  # RandomPerspective 추가
+  perspective: 0.0005  # 변형 정도 (작을수록 약함)
+  scale: 0.9           # 확대/축소 범위
+  shear: 2.0           # 기울이기 정도
+  translate: 0.1       # 평행이동 정도
+
+val:
+  # RandomPerspective 추가
+  perspective: 0.0005  # 변형 정도 (작을수록 약함)
+  scale: 3.0           # 확대/축소 범위
+  shear: 7.0           # 기울이기 정도
+  translate: 0.05      # 평행이동 정도
